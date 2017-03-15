@@ -1,15 +1,21 @@
+float centerH = 0;
+float widthH = 0.5;
+
 float minH = 0.5;
 float maxH = 0.9;
-float minS = 0.2;
+float minS = 0.0;
 float maxS = 0.99;
-float minB = 0.6;
+float minB = 0.0;
 float maxB = 1.0;
-float alpha = 0.12;
+float alpha = 0.05;
 
 float ah = 0.020;
 float as = 0.009;
-float ab = 0.009;
-float at = 0.020;
+float ab = 0.006;
+
+float th = 0.020;
+float ts = 0.010;
+float tb = 0.0005;
 
 int N = 6;
 float ang;
@@ -37,14 +43,18 @@ void setup() {
 
 void draw() {
   float t = float(frameCount);
+  //minH = (centerH - 0.5*widthH ) % 1;
+  //maxH = (centerH + 0.5*widthH ) % 1;
   pg.beginDraw();
   pg.translate( 0.0*xRes , 0.5*yRes );
   for( float x = 0 ; x < 0.75*xRes ; x+=w ) {
     for( float y = 0 ; y < yRes ; y+=w ) {
       if( x >= 0 && y <= slope*x + w ) {
-        float h = lerp( minH , maxH , noise( ah*(0*xRes + x) , ah*y , at*t ) );
-        float s = lerp( minS , maxS , noise( as*(1*xRes + x) , as*y , at*t ) );
-        float b = lerp( minB , maxB , noise( ab*(2*xRes + x) , ab*y , at*t ) );
+        float h = ( centerH + lerp( minH , maxH , noise( ah*(0*xRes + x) , ah*y , th*t ) ) ) %1;
+        float s = lerp( minS , maxS , noise( as*(1*xRes + x) , as*y , ts*t ) );
+        s = -pow( -(s-1) , 1.2 ) +1;
+        float b = lerp( minB , maxB , noise( ab*(2*xRes + x) , ab*y , tb*t ) );
+        b = -pow( -(b-1) , 2 ) +1;
         pg.fill( h , s , b , alpha );
         pg.rect( x , y , w , w );
         pg.rect( x , -y , w , w );
@@ -66,5 +76,10 @@ void draw() {
     image( pg , 0 , -0.5*yRes );
     popMatrix();
   }
-  println(frameRate);
+  //println(frameRate);
+}
+
+void mouseMoved() {
+  centerH = mouseX / xRes;
+  widthH = mouseY / yRes;
 }
